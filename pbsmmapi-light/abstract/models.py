@@ -88,7 +88,7 @@ class PBSMMLightObject(PBSMMLightGlobalAbstract, PBSMMLightGenerallyAbstract, PB
     class Meta:
         abstract = True
         
-class PBSMMLightShowObject(PBSMMLightGlobalAbstract, PBSMMLightIngest):
+class PBSMMLightSeasonObject(PBSMMLightGlobalAbstract, PBSMMLightIngest):
     pass
     
     class Meta:
