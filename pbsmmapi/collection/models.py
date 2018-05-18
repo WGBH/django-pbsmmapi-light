@@ -1,9 +1,5 @@
 from django.db import models
-from ..abstract.models import PBSMMLightObject
+from ..abstract.models import PBSMMLightCollectionObject
 
-class PBSMMLightCollection(PBSMMLightObject):
+class PBSMMCollection(PBSMMLightCollectionObject):
     pass
-    
-    class Meta:
-        db_table = 'collection'
-        app_label = 'pbsmmapi'

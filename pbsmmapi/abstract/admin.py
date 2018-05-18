@@ -1,42 +1,40 @@
 from django.contrib import admin
 
-from .models import PBSMMLightAsset, PBSMMLightEpisode, PBSMMLightSeason, PBSMMLightShow, PBSMMLightSpecial
-    #PBSMMLightCollection,\
-    #PBSMMLightFranchise,\
-    #PBSMMLightRemoteAsset,\
+class PBSMMAbstractAdmin(admin.ModelAdmin):
     
-global_readonly_fields = ['title', 'link_to_api_record', 'object_id', 'date_created', 'date_last_api_update', 'last_api_status']
-
-class PBSMMLightAssetAdmin(admin.ModelAdmin):
-    readonly_fields = global_readonly_fields
+    def force_reingest(self, request, queryset):
+        # queryset is the list of Asset items that were selected.
+        for item in queryset:
+            item.ingest_on_save = True
+            # HOW DO I FIND OUT IF THE save() was successful?
+            item.save()
+    force_reingest.short_description = 'Reingest selected items.'
     
-#class PBSMMLightCollectionAdmin(admin.ModelAdmin):
-#   readonly_fields = global_readonly_fields
+    def make_publicly_available(self, request, queryset):
+        for item in queryset:
+            item.publish_status = 1
+            item.save()
+    make_publicly_available.short_description = 'Take item LIVE (to the public)'
+            
+    def take_offline(self, request, queryset):
+        for item in queryset:
+            item.publish_status = 0
+            item.save() 
+    take_offline.short_description = 'Take item OFFLINE (admin only)'
+            
+    class Meta:
+        abstract = True
+        
     
-class PBSMMLightEpisodeAdmin(admin.ModelAdmin):
-    readonly_fields = global_readonly_fields
-    
-#class PBSMMLightFranchiseAdmin(admin.ModelAdmin):
-#   readonly_fields = global_readonly_fields
-    
-#class PBSMMLightRemoteAssetAdmin(admin.ModelAdmin):
-#   readonly_fields = global_readonly_fields
-    
-class PBSMMLightSeasonAdmin(admin.ModelAdmin):
-    readonly_fields = global_readonly_fields
-    
-class PBSMMLightShowAdmin(admin.ModelAdmin):
-    readonly_fields = global_readonly_fields
-    
-class PBSMMLightSpecialAdmin(admin.ModelAdmin):
-    readonly_fields = global_readonly_fields
-    
-    
-admin.site.register(PBSMMLightAsset, PBSMMLightAssetAdmin)
-#admin.site.register(PBSMMLightCollection, PBSMMLightAssetAdmin)
-admin.site.register(PBSMMLightEpisode, PBSMMLightAssetAdmin)
-#admin.site.register(PBSMMLightFranchise, PBSMMLightAssetAdmin)
-#admin.site.register(PBSMMLightRemoteAsset, PBSMMLightAssetAdmin)
-admin.site.register(PBSMMLightSeason, PBSMMLightAssetAdmin)
-admin.site.register(PBSMMLightShow, PBSMMLightAssetAdmin)
-admin.site.register(PBSMMLightSpecial, PBSMMLightAssetAdmin)
+def get_abstract_asset_table(object_list):
+    out = "<table width=\"100%\" border=2>"
+    out += "\n<tr><th>Title</th><th>API</th><th>Admin</th><th>Popup</th></tr>"
+    for item in object_list:
+        out += "\n<tr>"
+        out += "\n\t<td>%s</td>" % item.title
+        out += "\n\t<td><a href=\"%s\" target=\"_new\">API</a></td>" % item.api_endpoint
+        out += "\n\t<td><a href=\"/admin/episode/pbsmmepisodeasset/%d/change/\" target=\"_new\">Admin</a></td>" % item.id
+        out += "\n\t<td>(soon)</td>"
+        out += "\n</tr>"
+    out += "\n</table>"
+    return out
